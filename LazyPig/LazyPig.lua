@@ -46,6 +46,7 @@ BINDING_NAME_RELOAD = "Reload UI";
 BINDING_NAME_DUEL = "Target WSG EFC/Duel Request-Cancel";
 BINDING_NAME_WSGDROP = "Drop WSG Flag/Remove Slow Fall";
 BINDING_NAME_MENU = "_LazyPig Menu";
+BINDING_NAME_FINDHERBSMINERALS = "Toggle Finding Herbs / Minerals";
 
 local Original_SelectGossipActiveQuest = SelectGossipActiveQuest;
 local Original_SelectGossipAvailableQuest = SelectGossipAvailableQuest;
@@ -2416,6 +2417,15 @@ function LazyPig_Duel_EFC()
 	end	
 end
 
+function LazyPig_Find_Herbs_Minerals()
+  if GetTrackingTexture() == "Interface\\Icons\\Spell_Nature_Earthquake" then
+    CastSpellByName("Find Herbs");
+  else
+    CastSpellByName("Find Minerals");
+  end
+  MyTime = GetTime();
+  echo(MyTime);
+end
 
 function aaa()
 PlayerFrame:Hide()
