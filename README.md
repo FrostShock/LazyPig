@@ -26,3 +26,5 @@ Added by FrostShock:
 * * Integrated <a href="https://github.com/wbb1977/ChatTimestamps">ChatTimestamps</a>
 
 Read more about features here   -   https://github.com/satan666/_LP
+
+All credits go to the authors of the addons. What I did was mostly Copy + Paste.
