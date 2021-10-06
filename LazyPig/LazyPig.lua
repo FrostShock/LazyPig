@@ -37,6 +37,7 @@ LPCONFIG = {
 	REZ = true, 
 	GOSSIP = true, 
 	SALVA = false,
+	TIMESTAMPS = true,
 }
 
 BINDING_HEADER_LP_HEADER = "_LazyPig";
@@ -174,8 +175,11 @@ local LazyPigMenuStrings = {
 		[98]= "Gossip Auto Processing",
 		[99]= "Character Auto-Save",
 		[100]= "Auto Dismount",
-		[101]= "Chat Spam Filter"
+		[101]= "Chat Spam Filter",
+		[102]= "Chat Timestamps"
 }
+
+local CTS_MainFrame;
 
 function LazyPig_OnLoad()
 	SelectGossipActiveQuest = LazyPig_SelectGossipActiveQuest;
@@ -196,6 +200,105 @@ function LazyPig_OnLoad()
 	this:RegisterEvent("ADDON_LOADED");
 	this:RegisterEvent("PLAYER_LOGIN")
 	--this:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+	ChatTimestamps_OnLoad();
+end
+
+function ChatTimestamps_ChatFrame_AddMessage(self, msg, a1,a2,a3,a4,a5,a6,a7,a8,a9)
+  return self:ChatTimestamps_Orig_AddMessage(ChatTimestamps_AddTimeStamp(msg),a1,a2,a3,a4,a5,a6,a7,a8,a9);
+end
+
+function ChatTimestamps_Trim(s)
+   return string.gsub(s, "^%s*(.-)%s*$", "%1");
+end
+
+function ChatTimestamps_OnEvent()
+             if not (ChatTimestampsSettings) then
+               -- Default Settings
+               ChatTimestampsSettings               = { };
+               ChatTimestampsSettings.Format        = "[%H:%M:%S]";
+             end
+
+             ChatTimestamps_HookAllChatFrames();
+end
+
+function ChatTimestamps_OnLoad()
+
+        -- Register the slash command
+        SlashCmdList["CHATTIMESTAMPS"] = function(msg)
+          ChatTimestamps_SlashCommand(msg);
+        end;
+        SLASH_CHATTIMESTAMPS1 = "/chattimestamps";
+        SLASH_CHATTIMESTAMPS2 = "/cts";
+
+        CTS_MainFrame = CreateFrame("Frame", "ChatTimestampsFrame");
+        CTS_MainFrame:SetScript("OnEvent", ChatTimestamps_OnEvent);
+        CTS_MainFrame:RegisterEvent("VARIABLES_LOADED");
+
+           if( DEFAULT_CHAT_FRAME ) then
+               DEFAULT_CHAT_FRAME:AddMessage("|cffffff00ChatTimestamps 1.6a loaded");
+           else
+               UIErrorsFrame:AddMessage("ChatTimestamps AddOn loaded", 1.0, 1.0, 1.0, 1.0, UIERRORS_HOLD_TIME);
+           end
+
+end
+
+function ChatTimestamps_HookAllChatFrames()
+  for i=1,NUM_CHAT_WINDOWS do
+    local cf = getglobal("ChatFrame"..i);
+    cf.ChatTimestamps_Orig_AddMessage = cf.AddMessage;
+    cf.AddMessage = ChatTimestamps_ChatFrame_AddMessage;
+  end
+end
+
+function ChatTimestamps_AddTimeStamp(msg)
+--  if not ((msg == nil) or (LPCONFIG.TIMESTAMPS == false)) then
+  if not (msg == nil) then
+    if LPCONFIG.TIMESTAMPS then
+      local locFormat = ChatTimestampsSettings.Format;
+      if (strfind(locFormat,"#H") ~= 1) then
+        local ParsedTime = date("%H");
+        if (strsub(ParsedTime,1,1) == "0") then ParsedTime = strsub(ParsedTime,2); end;
+        locFormat = gsub(locFormat, "#H", ParsedTime);
+      end
+      if (strfind(locFormat,"#I") ~= 1) then
+        local ParsedTime = date("%I");
+        if (strsub(ParsedTime,1,1) == "0") then ParsedTime = strsub(ParsedTime,2); end;
+        locFormat = gsub(locFormat, "#I", ParsedTime);
+      end
+      msg = date(locFormat).." "..msg;  -- TimeStamp Format
+    end
+  end
+  return msg;
+end
+
+function ChatTimestamps_SlashCommand(msg)
+
+        -- Check the command
+        if (msg) then
+                local command = ChatTimestamps_Trim(msg);
+                local params = "";
+
+                if (strfind(command," ") ~= nul) then
+                  command = strsub(command,0,strfind(command," ")-1);
+                  params  = ChatTimestamps_Trim(strsub(msg,strfind(msg,command)+strlen(command)));
+                  command = strlower(command);
+                end
+
+                if (command == "status") then
+                        DEFAULT_CHAT_FRAME:AddMessage("|cffffff00ChatTimestamps Format: "..ChatTimestampsSettings.Format);
+
+                elseif ((command == "format") and (strlen(params) > 0)) then
+                        params = string.gsub(params, "||", "|");
+                        ChatTimestampsSettings.Format = params;
+                        DEFAULT_CHAT_FRAME:AddMessage("|cffffff00ChatTimestamps Format set to: \""..ChatTimestampsSettings.Format.."\"");
+
+                else
+                        DEFAULT_CHAT_FRAME:AddMessage("|cffffff00ChatTimestamps Options:");
+                        DEFAULT_CHAT_FRAME:AddMessage("|cffffff00/cts status - Shows current settings");
+                        DEFAULT_CHAT_FRAME:AddMessage("|cffffff00/cts format <timeformat> (default \"[%H:%M:%S]\") - Sets timestamp format");
+                end
+        end
 end
 
 function LazyPig_Command()
@@ -1880,6 +1983,7 @@ function LazyPig_GetOption(num)
 	or num == 99 and LPCONFIG.NOSAVE ~= GetRealmName()
 	or num == 100 and LPCONFIG.DISMOUNT
 	or num == 101 and LPCONFIG.SPAM
+	or num == 102 and LPCONFIG.TIMESTAMPS
 	
 	or nil then
 		this:SetChecked(true);
@@ -2106,14 +2210,14 @@ function LazyPig_SetOption(num)
 		if LPCONFIG.CAM then SetCVar("cameraDistanceMax",50) else SetCVar("cameraDistanceMaxFactor",1) SetCVar("cameraDistanceMax",15) end	
 	elseif num == 95 then 
 		LPCONFIG.SPECIALKEY = true
-		if not checked then LPCONFIG.SPECIALKEY = nil end	
+		if not checked then LPCONFIG.SPECIALKEY = nil end
 	elseif num == 96 then
 		LPCONFIG.DUEL = true
 		if not checked then LPCONFIG.DUEL = nil end
 		if LPCONFIG.DUEL then CancelDuel() end
 	elseif num == 97 then
 		LPCONFIG.REZ = true
-		if not checked then LPCONFIG.REZ = nil end	
+		if not checked then LPCONFIG.REZ = nil end
 	elseif num == 98 then
 		LPCONFIG.GOSSIP = true
 		if not checked then LPCONFIG.GOSSIP = nil end
@@ -2122,10 +2226,13 @@ function LazyPig_SetOption(num)
 		if not checked then LPCONFIG.NOSAVE = GetRealmName() end
 	elseif num == 100 then
 		LPCONFIG.DISMOUNT = true
-		if not checked then LPCONFIG.DISMOUNT = nil end	
+		if not checked then LPCONFIG.DISMOUNT = nil end
 	elseif num == 101 then
 		LPCONFIG.SPAM  = true
-		if not checked then LPCONFIG.SPAM  = nil end			
+		if not checked then LPCONFIG.SPAM  = nil end
+	elseif num == 102 then
+		LPCONFIG.TIMESTAMPS = true
+		if not checked then LPCONFIG.TIMESTAMPS = nil end	
 		
 	else
 		--DEFAULT_CHAT_FRAME:AddMessage("DEBUG: No num assigned - "..num)
@@ -2423,6 +2530,8 @@ function LazyPig_Find_Herbs_Minerals()
   else
     CastSpellByName("Find Minerals");
   end
+  MyTime = GetTime();
+  echo(MyTime);
 end
 
 function aaa()
