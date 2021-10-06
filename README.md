@@ -14,4 +14,6 @@ Features:
 * Fast turn in of quests, especially useful for repeatable quests (e.g. AV quests). Use Shift + Right Click.
 * (Warriors) Automatically cancel Salvation when it is cast on you.
 
+With LazyPig you don’t need anymore these addons: ZGLoot, GrayAutoSell, QuickLoot, QuestHaste, ShaguMount, Block Salvation, Automaton
+
 Read more about features here   -   https://github.com/satan666/_LP
