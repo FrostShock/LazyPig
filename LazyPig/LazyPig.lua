@@ -176,10 +176,40 @@ local LazyPigMenuStrings = {
 		[99]= "Character Auto-Save",
 		[100]= "Auto Dismount",
 		[101]= "Chat Spam Filter",
-		[102]= "Chat Timestamps"
+		[102]= "Chat Timestamps",
+		[103]= "Shagu Clock"
 }
 
 local CTS_MainFrame;
+
+-- Shagu Clock START
+local SCframe = CreateFrame("Button", "Clock", UIParent)
+SCframe:ClearAllPoints()
+SCframe:SetWidth(115)
+SCframe:SetHeight(25)
+SCframe:SetPoint("CENTER", 0, 0)
+SCframe.text = SCframe:CreateFontString("Status", "LOW", "GameFontNormal")
+SCframe.text:SetFont(STANDARD_TEXT_FONT, 16, "OUTLINE")
+SCframe.text:ClearAllPoints()
+SCframe.text:SetAllPoints(SCframe)
+SCframe.text:SetPoint("CENTER", 0, 0)
+SCframe.text:SetFontObject(GameFontWhite)
+SCframe:SetScript("OnUpdate", function()
+  this.text:SetText(date("%H:%M"))
+end)
+
+SCframe:SetMovable(true)
+SCframe:EnableMouse(true)
+SCframe:SetScript("OnMouseDown",function()
+  this:StartMoving()
+end)
+
+SCframe:SetScript("OnMouseUp",function()
+  this:StopMovingOrSizing()
+  this:SetUserPlaced(true)
+end)
+
+-- Shagu Clock END
 
 function LazyPig_OnLoad()
 	SelectGossipActiveQuest = LazyPig_SelectGossipActiveQuest;
@@ -1984,6 +2014,7 @@ function LazyPig_GetOption(num)
 	or num == 100 and LPCONFIG.DISMOUNT
 	or num == 101 and LPCONFIG.SPAM
 	or num == 102 and LPCONFIG.TIMESTAMPS
+	or num == 103 and LPCONFIG.SCLOCK
 	
 	or nil then
 		this:SetChecked(true);
@@ -2232,7 +2263,10 @@ function LazyPig_SetOption(num)
 		if not checked then LPCONFIG.SPAM  = nil end
 	elseif num == 102 then
 		LPCONFIG.TIMESTAMPS = true
-		if not checked then LPCONFIG.TIMESTAMPS = nil end	
+		if not checked then LPCONFIG.TIMESTAMPS = nil end
+	elseif num == 103 then
+		LPCONFIG.SCLOCK = true
+		if not checked then LPCONFIG.SCLOCK = nil end	
 		
 	else
 		--DEFAULT_CHAT_FRAME:AddMessage("DEBUG: No num assigned - "..num)
