@@ -2617,8 +2617,8 @@ function LazyPig_Find_Herbs_Minerals()
   else
     CastSpellByName("Find Minerals");
   end
-  MyTime = GetTime();
-  echo(MyTime);
+--  MyTime = GetTime();
+--  echo(MyTime);
 end
 
 function aaa()
