@@ -16,8 +16,9 @@ Features:
 
 With LazyPig you don’t need anymore these addons: ZGLoot, GrayAutoSell, QuickLoot, QuestHaste, ShaguMount, Block Salvation, Automaton
 
-Added by FrostShock
+Added by FrostShock:
 * Key binding for Find Herbs / Find Minerals
 * Integrated <a href="https://github.com/wbb1977/ChatTimestamps">ChatTimestamps</a>
 * Integrated <a href="https://github.com/FrostShock/ShaguClock">ShaguClock</a>
+* 
 Read more about features here   -   https://github.com/satan666/_LP
