@@ -93,6 +93,7 @@ local CheckBoxTables = {
 		[11] = { "LazyPigCheckbox100", "Auto Dismount", "Auto-Dismount when it's required by another action" },
 		[12] = { "LazyPigCheckbox102", "Chat Timestamps", "Adds a customizable timestamp to every chat window." },
 		[13] = { "LazyPigCheckbox103", "Shagu Clock", "Draws a simple movable clock on the screen" },
+		[14] = { "LazyPigCheckbox104", "Retarget", "Retargets Hunters after Feign Death and all units after disappearing" },
 		--[12] = { "LazyPigCheckbox101", "Chat Spam Filter", "One minute ban for identical messages" },
 		--[12] = { "LazyPigCheckbox102", "Block Battleground Quest Sharing", "Really? No more 'Stable' spam?" }
 	},
@@ -292,7 +293,7 @@ function LazyPig_CreateOptionsFrame()
 	frame.cbgroup_singlechoise = CheckBoxGroup(frame, 250, -242, str, CheckBoxTables[str])
 	
 	local str = "Nameplates Display Rules"
-	frame.cbgroup_nameplates = CheckBoxGroup(frame, 250, -455, str, CheckBoxTables[str])
+	frame.cbgroup_nameplates = CheckBoxGroup(frame, 250, -475, str, CheckBoxTables[str])
 	
 	return frame
 

@@ -1,5 +1,7 @@
 LPCONFIG = {
 	DISMOUNT = true, 
+	SCLOCK = true, 
+	RETARGET = true, 
 	CAM = false, 
 	GINV = true, 
 	FINV = true, 
@@ -177,12 +179,14 @@ local LazyPigMenuStrings = {
 		[100]= "Auto Dismount",
 		[101]= "Chat Spam Filter",
 		[102]= "Chat Timestamps",
-		[103]= "Shagu Clock"
+		[103]= "Shagu Clock",
+		[104]= "Retarget"
 }
 
 local CTS_MainFrame;
 
--- Shagu Clock START
+-- ShaguClock START
+
 local SCframe = CreateFrame("Button", "Clock", UIParent)
 SCframe:ClearAllPoints()
 SCframe:SetWidth(115)
@@ -209,7 +213,48 @@ SCframe:SetScript("OnMouseUp",function()
   this:SetUserPlaced(true)
 end)
 
--- Shagu Clock END
+-- ShaguClock END
+
+-- Retarget START
+
+local function feigning()
+	local i, buff = 1, nil
+	repeat
+		buff = UnitBuff('target', i)
+		if buff == [[Interface\Icons\Ability_Rogue_FeignDeath]] then
+			return true
+		end
+		i = i + 1
+	until not buff
+	return UnitCanAttack('player', 'target')
+end
+
+local unit, dead, lost
+local pass = function() end
+
+CreateFrame'Frame':SetScript('OnUpdate', function()
+	local target = UnitName'target'
+	if target then
+		unit, dead, lost = target, UnitIsDead'target', false
+	elseif unit then
+	if LPCONFIG.RETARGET then
+			local _PlaySound, _UIErrorsFrame_OnEvent = PlaySound, UIErrorsFrame_OnEvent
+			PlaySound, UIErrorsFrame_OnEvent = lost and PlaySound or pass, pass
+			TargetByName(unit, true)
+			PlaySound, UIErrorsFrame_OnEvent = _PlaySound, _UIErrorsFrame_OnEvent
+			if UnitExists'target' then
+				if not (lost or (not dead and UnitIsDead'target' and feigning())) then
+					ClearTarget()
+					unit, lost = nil, false
+				end
+			else
+				lost = true
+			end
+		end
+	end
+end)
+
+-- Retarget END
 
 function LazyPig_OnLoad()
 	SelectGossipActiveQuest = LazyPig_SelectGossipActiveQuest;
@@ -233,6 +278,8 @@ function LazyPig_OnLoad()
 
 	ChatTimestamps_OnLoad();
 end
+
+-- ChatTimestamps START
 
 function ChatTimestamps_ChatFrame_AddMessage(self, msg, a1,a2,a3,a4,a5,a6,a7,a8,a9)
   return self:ChatTimestamps_Orig_AddMessage(ChatTimestamps_AddTimeStamp(msg),a1,a2,a3,a4,a5,a6,a7,a8,a9);
@@ -330,6 +377,8 @@ function ChatTimestamps_SlashCommand(msg)
                 end
         end
 end
+
+-- ChatTimestamps END
 
 function LazyPig_Command()
 	if LazyPigOptionsFrame:IsShown() then
@@ -2015,6 +2064,7 @@ function LazyPig_GetOption(num)
 	or num == 101 and LPCONFIG.SPAM
 	or num == 102 and LPCONFIG.TIMESTAMPS
 	or num == 103 and LPCONFIG.SCLOCK
+	or num == 104 and LPCONFIG.RETARGET
 	
 	or nil then
 		this:SetChecked(true);
@@ -2266,7 +2316,10 @@ function LazyPig_SetOption(num)
 		if not checked then LPCONFIG.TIMESTAMPS = nil end
 	elseif num == 103 then
 		LPCONFIG.SCLOCK = true
-		if not checked then LPCONFIG.SCLOCK = nil end	
+		if not checked then LPCONFIG.SCLOCK = nil end
+	elseif num == 104 then
+		LPCONFIG.RETARGET = true
+		if not checked then LPCONFIG.RETARGET = nil end
 		
 	else
 		--DEFAULT_CHAT_FRAME:AddMessage("DEBUG: No num assigned - "..num)
